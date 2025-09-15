@@ -1354,8 +1354,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 136.3, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 136, y: -3}
+  m_SizeDelta: {x: 25.1558, y: -222.8628}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &91074429
 MonoBehaviour:
@@ -4441,6 +4441,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1243226930}
   - component: {fileID: 1243226929}
+  - component: {fileID: 1243226931}
   m_Layer: 0
   m_Name: CanvasManager
   m_TagString: Untagged
@@ -4460,8 +4461,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50aa1f0949390e14585de8256227e7e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  creditsPannel: {fileID: 630402984}
-  settingsPannel: {fileID: 1407107614}
+  creditsPannel: {fileID: 1011605296}
+  settingsPannel: {fileID: 2934620}
   menuPannel: {fileID: 869812080}
   playBtn: {fileID: 896118270}
   settingBtn: {fileID: 2037655486}
@@ -4484,6 +4485,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1243226931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1243226928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a74767f5daf913141a47793afb70f10e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mixer: {fileID: 24100000, guid: afe664a8048a8f44e9f32943fad224ab, type: 2}
+  masterSlider: {fileID: 879886620}
+  masterTxt: {fileID: 28764590}
+  musicSlider: {fileID: 492860232}
+  musicTxt: {fileID: 608489339}
+  sfxSlider: {fileID: 220421757}
+  sfxTxt: {fileID: 1983827726}
 --- !u!1 &1263123831
 GameObject:
   m_ObjectHideFlags: 0
