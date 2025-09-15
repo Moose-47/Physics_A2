@@ -39,9 +39,15 @@ public class RaceSpawner : MonoBehaviour
 
         //--- Spawn the Player ---
         int playerIndex = PickRandomSpawnIndex(); //Pick a random index and remove it from available
-        Instantiate(playerPrefab, spawnPoints[playerIndex].position, spawnPoints[playerIndex].rotation);
         //Instantiate creates a new instance of a prefab at a position and rotation
-
+        GameObject player = Instantiate(playerPrefab, spawnPoints[playerIndex].position, spawnPoints[playerIndex].rotation);
+        //Get the sprite renderer inside the player and set it to the selected sprite from VehicleSelection
+        if (VehicleSelection.Instance != null)
+        {
+            PlayerController playerCar = player.GetComponent<PlayerController>();
+            if (playerCar != null)
+                playerCar.Initialize(VehicleSelection.Instance.GetSelectedSprite());
+        }
         //--- Spawn AI Cars ---
         int aiCount = spawnPoints.Length - 1; //Remaining spawn points are for AI
         for (int i = 0; i < aiCount; i++)
@@ -52,10 +58,11 @@ public class RaceSpawner : MonoBehaviour
             GameObject aiInstance = Instantiate(aiPrefab, spawnPoints[aiIndex].position, spawnPoints[aiIndex].rotation);
 
             //--- Randomly assign a sprite to the AI car ---
-            SpriteRenderer sr = aiInstance.GetComponentInChildren<SpriteRenderer>();
-            //GetComponentInChildren searches the object and its children for a SpriteRenderer
-            if (sr != null && aiSprites.Length > 0)
-                sr.sprite = aiSprites[Random.Range(0, aiSprites.Length)];
+            AiCarController ai = aiInstance.GetComponent<AiCarController>();
+            if (ai != null && aiSprites.Length > 0)
+            {
+                ai.Initialize(aiSprites[Random.Range(0, aiSprites.Length)]);
+            }
             //Random.Range(0, array.Length) picks a random index from the array
             //This gives AI variety in appearance/colors
         }

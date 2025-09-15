@@ -32,6 +32,9 @@ public class AiCarController : MonoBehaviour
     public float recoveryTeleportDistance = 10f; //Distance beyond which AI teleports back to track
 
     private Rigidbody2D rb;            //Reference to Rigidbody2D component
+    private SpriteRenderer sr;         //Reference to SpriteRenderer for setting selected sprite
+    private ColliderResizer cr;        //Reference to the ColliderResizer.cs for resizing collider on spawn
+
     private float targetSpeed = 0f;    //Speed AI wants to reach
     private bool recovering = false;   //Whether AI is currently recovering
     private float stuckTimer = 0f;     //Timer to track how long AI has been stuck
@@ -39,6 +42,9 @@ public class AiCarController : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+        cr = GetComponent<ColliderResizer>();
+        racingLine = FindAnyObjectByType<RacingLine>();
 
         //If a RacingLine exists, copy its waypoints
         if (racingLine != null)
@@ -48,6 +54,16 @@ public class AiCarController : MonoBehaviour
         laneOffset += Random.Range(-0.5f, 0.5f);     //Shift left/right slightly
         lookAheadDistance += Random.Range(-1f, 1f);  //Slightly closer/further look-ahead
         baseMaxSpeed += Random.Range(-2f, 2f);       //Slightly faster/slower car
+    }
+
+    public void Initialize(Sprite chosenSprite)
+    {
+        if (chosenSprite == null) return;
+
+        sr.sprite = chosenSprite;
+
+        if (cr != null)
+            cr.ResetCollider();
     }
 
     private void FixedUpdate()

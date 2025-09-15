@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(CapsuleCollider2D))]
-public class PlayerCarController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float acceleration = 15f;          //How quickly the car speeds up when accelerating
@@ -28,12 +28,14 @@ public class PlayerCarController : MonoBehaviour
     private bool braking;                     //True if the player is holding the brake input
 
     private Rigidbody2D rb;                   //Reference to the Rigidbody2D for physics
-
+    private SpriteRenderer sr;                //Reference to SpriteRenderer for setting selected sprite
+    private ColliderResizer cr;               //Reference to the ColliderResizer.cs for resizing collider on spawn
     private void Awake()
     {
         //Cache the Rigidbody2D for physics calculations
         rb = GetComponent<Rigidbody2D>();
-
+        sr = GetComponent<SpriteRenderer>();
+        cr = GetComponent<ColliderResizer>();
         //Find the Player action map in the Input Actions asset
         var playerMap = inputActions.FindActionMap("Player");
 
@@ -42,7 +44,15 @@ public class PlayerCarController : MonoBehaviour
         accelerateAction = playerMap.FindAction("Accelerate"); //Accelerate input
         brakeAction = playerMap.FindAction("Brake");        //Brake input
     }
+    public void Initialize(Sprite chosenSprite)
+    {
+        if (chosenSprite == null) return;
 
+        sr.sprite = chosenSprite;
+
+        if (cr != null)
+            cr.ResetCollider();
+    }
     private void OnEnable()
     {
         //Enable all actions so they start listening to input
