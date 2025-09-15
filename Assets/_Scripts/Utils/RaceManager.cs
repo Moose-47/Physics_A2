@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -21,12 +20,12 @@ public class RaceManager : MonoBehaviour
     public List<AiCarController> aiCars = new List<AiCarController>(); //AI cars list
 
     private int currentCheckpointIndex = 0; //Tracks which checkpoint player is expected to hit next
-    private int currentLap = 0;             // Tracks player's current lap
-    private bool playerFinished = false;    // Flag indicating if player finished race
+    private int currentLap = 0;             //Tracks player's current lap
+    private bool playerFinished = false;    //Flag indicating if player finished race
 
-    private float raceTimer = 0f; // Global race timer (all laps)
+    private float raceTimer = 0f; //Global race timer (all laps)
 
-    // Dictionary storing actual finish times of AI cars. Value <0 means AI hasn't finished yet.
+    //Dictionary storing actual finish times of AI cars. Value <0 means AI hasn't finished yet.
     private Dictionary<AiCarController, float> aiFinishTimes = new Dictionary<AiCarController, float>();
 
     public int CurrentLap => currentLap;
