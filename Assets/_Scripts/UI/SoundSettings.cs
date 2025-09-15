@@ -20,9 +20,9 @@ public class SoundSettings : MonoBehaviour
     {
         LoadVolumeSettings();
 
-        setupSliderInfo(masterSlider, masterTxt, "Master");
-        setupSliderInfo(musicSlider, musicTxt, "Music");
-        setupSliderInfo(sfxSlider, sfxTxt, "SFX");
+        setupSliderInfo(masterSlider, masterTxt, "masterVol");
+        setupSliderInfo(musicSlider, musicTxt, "musicVol");
+        setupSliderInfo(sfxSlider, sfxTxt, "sfxVol");
     }
 
     void OnSliderValueChanged(float value, Slider slider, TMP_Text sliderText, string parameterName)
@@ -42,16 +42,16 @@ public class SoundSettings : MonoBehaviour
     {
         float defaultVolume = 0.5f;
 
-        float masterVol = PlayerPrefs.HasKey("Master") ? PlayerPrefs.GetFloat("Master") : defaultVolume;
-        float musicVol = PlayerPrefs.HasKey("Music") ? PlayerPrefs.GetFloat("Music") : defaultVolume;
-        float sfxVol = PlayerPrefs.HasKey("SFX") ? PlayerPrefs.GetFloat("SFX") : defaultVolume;
+        float masterVol = PlayerPrefs.HasKey("masterVol") ? PlayerPrefs.GetFloat("masterVol") : defaultVolume;
+        float musicVol = PlayerPrefs.HasKey("musicVol") ? PlayerPrefs.GetFloat("musicVol") : defaultVolume;
+        float sfxVol = PlayerPrefs.HasKey("sfxVol") ? PlayerPrefs.GetFloat("sfxVol") : defaultVolume;
 
         masterSlider.value = masterVol;
         musicSlider.value = musicVol;
         sfxSlider.value = sfxVol;
 
-        mixer.SetFloat("Master", (masterVol == 0.0f) ? -80.0f : 20.0f * Mathf.Log10(masterVol));
-        mixer.SetFloat("Music", (musicVol == 0.0f) ? -80.0f : 20.0f * Mathf.Log10(musicVol));
-        mixer.SetFloat("SFX", (sfxVol == 0.0f) ? -80.0f : 20.0f * Mathf.Log10(sfxVol));
+        mixer.SetFloat("masterVol", (masterVol == 0.0f) ? -80.0f : 20.0f * Mathf.Log10(masterVol));
+        mixer.SetFloat("musicVol", (musicVol == 0.0f) ? -80.0f : 20.0f * Mathf.Log10(musicVol));
+        mixer.SetFloat("sfxVol", (sfxVol == 0.0f) ? -80.0f : 20.0f * Mathf.Log10(sfxVol));
     }
 }

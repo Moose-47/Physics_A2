@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Thomas.unity
     guid: ac3f9070f02b10249b2a52f34191aafe
+  - enabled: 1
+    path: Assets/_Scenes/CarSelection.unity
+    guid: 1fd924087040e954fa25900427b3f8be
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
