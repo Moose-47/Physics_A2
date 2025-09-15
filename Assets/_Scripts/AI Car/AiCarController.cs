@@ -13,7 +13,7 @@ public class AiCarController : MonoBehaviour
     [Header("Track Settings")]
     public RacingLine racingLine;              //Reference to racing line object containing all waypoints
     public Transform[] waypoints;              //Array of points forming the track path
-    private int currentIndex = 0;              //Current waypoint AI is heading toward
+    public int currentIndex = 0;               //Current waypoint AI is heading toward
 
     [Header("Off-Track Settings")]
     public LayerMask offTrackLayer;            //Layer representing areas off the track
@@ -38,6 +38,10 @@ public class AiCarController : MonoBehaviour
     private float targetSpeed = 0f;    //Speed AI wants to reach
     private bool recovering = false;   //Whether AI is currently recovering
     private float stuckTimer = 0f;     //Timer to track how long AI has been stuck
+
+    [HideInInspector] public int CurrentLap = 0;
+
+    [HideInInspector] public float CurrentForwardSpeed => Vector2.Dot(rb.linearVelocity, transform.up);
 
     private void Start()
     {

@@ -1,10 +1,10 @@
 using UnityEngine;
 
-/// <summary>
-/// This script exists for the purpose of resizing the CapsuleCollider2D component
-/// on the Player and Ai vehicles once instantiated to account for the slight 
-/// difference in sizes between the 3 different base vehicle sprites
-/// </summary>
+///<summary>
+///This script exists for the purpose of resizing the CapsuleCollider2D component
+///on the Player and Ai vehicles once instantiated to account for the slight 
+///difference in sizes between the 3 different base vehicle sprites
+///</summary>
 public class ColliderResizer : MonoBehaviour
 {
     private CapsuleCollider2D cc;
