@@ -161,13 +161,13 @@ public class RaceManager : MonoBehaviour
             results.Add((aiSprite, kvp.Value));
         }
 
-        // Sort by finish time ascending (first place first)
+        //Sort by finish time ascending (first place first)
         results.Sort((a, b) => a.finishTime.CompareTo(b.finishTime));
 
-        // Send results to a singleton holder to display in the next scene
+        //Send results to a singleton holder to display in the next scene
         RaceResultsHolder.Instance.SetResults(results);
 
-        // Load results scene
+        //Load results scene
         SceneManager.LoadScene("RaceFinished");
     }
 
