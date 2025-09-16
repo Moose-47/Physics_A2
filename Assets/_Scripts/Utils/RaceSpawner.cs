@@ -14,8 +14,8 @@ public class RaceSpawner : MonoBehaviour
 
     private void Start()
     {
-        //Ensure that we have exactly 8 spawn points (or more)
-        if (spawnPoints.Length < 8)
+        //Ensure that we have exactly 9 spawn points (or more)
+        if (spawnPoints.Length < 9)
         {
             Debug.LogError("There needs to be 8 starting positions");
             return; //Stop execution if not enough spawn points

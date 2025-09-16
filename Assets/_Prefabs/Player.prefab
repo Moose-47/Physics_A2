@@ -201,14 +201,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   acceleration: 15
-  deceleration: 8
-  brakeDeceleration: 12
-  maxForwardSpeed: 20
-  maxReverseSpeed: 6
+  deceleration: 10
+  brakeDeceleration: 18
+  maxForwardSpeed: 35
+  maxReverseSpeed: 12
   maxTurnAngle: 45
   turnSpeed: 180
   speedDependentTurnFactor: 0.3
+  offTrackLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  offTrackSlowFactor: 0.9
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  canMove: 0
 --- !u!114 &-5771316731276299600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288,7 +293,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 100
+  field of view: 120
   orthographic: 0
   orthographic size: 5
   m_Depth: -1

@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour
     public float turnSpeed = 180f;            //Base rotation speed (degrees per second)
     public float speedDependentTurnFactor = 0.5f; //Reduces turn sharpness at high speeds
 
+    [Header("Off-Track Settings")]
+    public LayerMask offTrackLayer;            //Layer representing areas off the track
+    public float offTrackSlowFactor = 0.5f;    //Slows AI when off-track
+
     [Header("Input Actions")]
     public InputActionAsset inputActions;     //The Input Actions asset from Unity's new Input System
 
@@ -30,6 +34,9 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;                   //Reference to the Rigidbody2D for physics
     private SpriteRenderer sr;                //Reference to SpriteRenderer for setting selected sprite
     private ColliderResizer cr;               //Reference to the ColliderResizer.cs for resizing collider on spawn
+
+    public bool canMove = false;             //Prevent player from moving while the countdown is happening
+
     private void Awake()
     {
         //Cache the Rigidbody2D for physics calculations
@@ -94,6 +101,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!canMove) return;
+
         // --- Determine current forward speed ---
         // Vector2.Dot(rb.velocity, transform.up) calculates how much of the velocity is in the direction the car is facing
         // transform.up is the local "forward" of the car
@@ -144,6 +153,10 @@ public class PlayerController : MonoBehaviour
         //rb.velocity = direction the car is facing (transform.up) multiplied by target speed
         rb.linearVelocity = transform.up * targetSpeed;
 
+        //---Off-Track slowdown---
+        if (IsOffTrack())
+            rb.linearVelocity *= offTrackSlowFactor;
+
         //--- Steering ---
         //Only allow turning if the car is moving (speed is not zero)
         if (Mathf.Abs(currentSpeed) > 0.01f)
@@ -160,5 +173,10 @@ public class PlayerController : MonoBehaviour
             //Rotate the car
             rb.MoveRotation(rb.rotation - rotationAmount);
         }
+    }
+
+    private bool IsOffTrack()
+    {
+        return Physics2D.OverlapPoint(transform.position, offTrackLayer);
     }
 }

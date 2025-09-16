@@ -51,7 +51,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -168,17 +168,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   acceleration: 15
-  deceleration: 8
-  baseMaxSpeed: 22
+  deceleration: 10
+  baseMaxSpeed: 35
   lookAheadDistance: 5
   laneOffset: 0
   racingLine: {fileID: 0}
   waypoints: []
+  currentIndex: 0
   offTrackLayer:
     serializedVersion: 2
     m_Bits: 8
-  offTrackSlowFactor: 0.5
-  avoidanceRayDistance: 2
+  offTrackSlowFactor: 0.9
+  avoidanceRayDistance: 4
   avoidanceStrength: 1.5
   playerLayer:
     serializedVersion: 2
@@ -186,8 +187,9 @@ MonoBehaviour:
   wrongWayAngle: 100
   stuckSpeedThreshold: 1
   stuckTimeLimit: 2
-  recoveryTurnSpeed: 150
-  recoveryTeleportDistance: 10
+  recoveryTurnSpeed: 270
+  canMove: 0
+  CurrentLap: 0
 --- !u!114 &-7050419785640352191
 MonoBehaviour:
   m_ObjectHideFlags: 0

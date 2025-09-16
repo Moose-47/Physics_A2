@@ -36,6 +36,7 @@ public class RaceManager : MonoBehaviour
     ///</summary>
     private void OnEnable()
     {
+        player = FindAnyObjectByType<PlayerController>();
         AiCarController[] foundAiCars = FindObjectsByType<AiCarController>(FindObjectsSortMode.None);
         aiCars = new List<AiCarController>(foundAiCars);
 
@@ -43,6 +44,12 @@ public class RaceManager : MonoBehaviour
         {
             aiFinishTimes[ai] = -1f; //-1 means AI hasn't finished
         }
+
+        foreach (var ai in foundAiCars)
+        {
+            ai.canMove = true;
+        }
+        player.canMove = true;
     }
 
     ///<summary>
