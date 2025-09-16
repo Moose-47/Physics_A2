@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(CapsuleCollider2D), typeof(SpriteRenderer))]
 public class AiCarController : MonoBehaviour
@@ -7,6 +8,9 @@ public class AiCarController : MonoBehaviour
     public float acceleration = 8f;
     public float deceleration = 6f;
     public float baseMaxSpeed = 33f;
+    public float maxTurnAngle = 90f;
+    public float turnSpeed = 180f;
+    public float speedDependentTurnFactor = 0.5f;
 
     [Header("Track Settings")]
     public RacingLine racingLine;
@@ -15,33 +19,30 @@ public class AiCarController : MonoBehaviour
 
     [Header("Off-Track Settings")]
     public LayerMask offTrackLayer;
-    public float offTrackSlowFactor = 0.5f;
-
-    [Header("Avoidance Settings")]
-    public float avoidanceRayDistance = 2f;
-    public float avoidanceStrength = 1.5f;
-    public LayerMask playerLayer;
+    public float offTrackSlowFactor = 0.9f;
 
     [Header("Waypoint Settings")]
-    public float waypointThreshold = 2f; // distance to consider waypoint reached
+    public float waypointThreshold = 4f;
+    public int lookaheadCount = 5;
+    public float baseLookaheadDistance = 5f;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private ColliderResizer cr;
 
-    private float targetSpeed = 0f;
+    private Queue<Vector2> targetQueue = new Queue<Vector2>();
     private Vector2 currentTargetPoint;
+    private float targetSpeed = 0f;
 
     public bool canMove = false;
     [HideInInspector] public int CurrentLap = 0;
-    [HideInInspector] public float CurrentForwardSpeed => Vector2.Dot(rb.linearVelocity, transform.up);
+    [HideInInspector] public int CurrentForwardSpeed => (int)Vector2.Dot(rb.linearVelocity, transform.up);
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         cr = GetComponent<ColliderResizer>();
-
         baseMaxSpeed += Random.Range(-5f, 5f);
     }
 
@@ -57,98 +58,97 @@ public class AiCarController : MonoBehaviour
         racingLine = FindAnyObjectByType<RacingLine>();
         if (racingLine != null)
             waypoints = racingLine.waypoints;
-        foreach (var wp in waypoints)
-        {
-            if (wp == null)
-            {
-                Debug.LogError("Null waypoint!");
-                continue;
-            }
 
-            // Search children, including inactive ones
-            BoxCollider2D box = wp.GetComponentInChildren<BoxCollider2D>(true);
-            Debug.Log($"Waypoint {wp.name} has BoxCollider2D? {box != null}");
-        }
-        SetRandomTargetPoint();
+        FillTargetQueue();
     }
 
     private void FixedUpdate()
     {
         if (!canMove || waypoints == null || waypoints.Length < 2) return;
 
+        // --- Step 1: Calculate dynamic lookahead point ---
+        float dynamicLookahead = Mathf.Max(baseLookaheadDistance, CurrentForwardSpeed * 0.5f);
+        currentTargetPoint = GetLookaheadPoint(dynamicLookahead);
+
+        // --- Step 2: Calculate angle to target ---
         Vector2 toTarget = (currentTargetPoint - (Vector2)transform.position).normalized;
-
-        // --- Steering ---
         float angleToTarget = Vector2.SignedAngle(transform.up, toTarget);
-        float steerInput = Mathf.Clamp(angleToTarget / 45f, -1f, 1f);
 
-        // Collision avoidance
-        steerInput += CheckAvoidance();
+        // --- Step 3: Calculate maximum speed to safely turn ---
+        float maxTurnSpeed = baseMaxSpeed * (maxTurnAngle / Mathf.Max(Mathf.Abs(angleToTarget), 1f));
+        targetSpeed = Mathf.Min(baseMaxSpeed, maxTurnSpeed);
 
-        rb.MoveRotation(rb.rotation + steerInput * 200f * Time.fixedDeltaTime);
-
-        // --- Speed control ---
-        AdjustSpeedForCorners(currentTargetPoint);
+        // --- Step 4: Apply speed smoothly ---
         float currentSpeed = Vector2.Dot(rb.linearVelocity, transform.up);
-        float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * Time.fixedDeltaTime);
-        rb.linearVelocity = transform.up * Mathf.Max(newSpeed, 0f);
+        float accel = (currentSpeed < targetSpeed) ? acceleration : deceleration;
+        float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, accel * Time.fixedDeltaTime);
+        rb.linearVelocity = transform.up * newSpeed;
 
+        // --- Step 5: Apply player-style turning ---
+        float steerInput = Mathf.Clamp(angleToTarget / maxTurnAngle, -1f, 1f);
+        float speedFactor = Mathf.Clamp01(Mathf.Abs(currentSpeed) / baseMaxSpeed);
+        float rotationAmount = steerInput * maxTurnAngle * (1f - speedDependentTurnFactor * speedFactor) * Time.fixedDeltaTime * turnSpeed / 90f;
+        rb.MoveRotation(rb.rotation + rotationAmount);
+
+        // --- Off-track slowdown ---
         if (IsOffTrack())
             rb.linearVelocity *= offTrackSlowFactor;
 
         // --- Waypoint progression ---
-        if (Vector2.Distance(transform.position, currentTargetPoint) < waypointThreshold)
+        if (Vector2.Distance(transform.position, targetQueue.Peek()) < waypointThreshold)
         {
-            currentIndex = (currentIndex + 1) % waypoints.Length;
-            SetRandomTargetPoint();
+            AdvanceToNextTarget();
         }
     }
 
-    private void SetRandomTargetPoint()
+    private void FillTargetQueue()
     {
-        if (waypoints == null || waypoints.Length == 0) return;
-
-        Transform wp = waypoints[currentIndex];
-        BoxCollider2D box = wp.GetComponent<BoxCollider2D>();
-        if (box == null)
-            box = wp.GetComponentInChildren<BoxCollider2D>();
-
-        if (box != null)
-            Debug.Log($"Found BoxCollider2D on {box.gameObject.name}");
-        else
-            Debug.LogError($"No BoxCollider2D found for waypoint {wp.name}");
-        if (box != null)
+        targetQueue.Clear();
+        for (int i = 0; i < lookaheadCount; i++)
         {
-            Vector2 worldPos = wp.position;
-            Vector2 halfSize = box.size * 0.5f;
-
-            float x = worldPos.x + Random.Range(-halfSize.x, halfSize.x);
-            float y = worldPos.y + Random.Range(-halfSize.y, halfSize.y);
-
-            currentTargetPoint = new Vector2(x, y);
-            Debug.Log("Random point set");
+            int idx = (currentIndex + i) % waypoints.Length;
+            targetQueue.Enqueue(GetPointFromWaypoint(waypoints[idx]));
         }
-        else
-        {
-            currentTargetPoint = wp.position;
-            Debug.Log("Center set");
-        }
+        currentTargetPoint = targetQueue.Peek();
     }
 
-    private void AdjustSpeedForCorners(Vector2 target)
+    private void AdvanceToNextTarget()
     {
-        int nextIndex = (currentIndex + 1) % waypoints.Length;
-        Vector2 nextTarget = waypoints[nextIndex].position;
-        Vector2 toCurrent = (target - (Vector2)transform.position).normalized;
-        Vector2 toNext = (nextTarget - target).normalized;
+        if (targetQueue.Count > 0)
+            targetQueue.Dequeue();
 
-        float angle = Vector2.Angle(toCurrent, toNext);
-        float maxSpeed = baseMaxSpeed;
+        currentIndex = (currentIndex + 1) % waypoints.Length;
+        int nextIdx = (currentIndex + lookaheadCount - 1) % waypoints.Length;
+        targetQueue.Enqueue(GetPointFromWaypoint(waypoints[nextIdx]));
+    }
 
-        if (angle > 45f) maxSpeed *= 0.6f;
-        else if (angle > 20f) maxSpeed *= 0.8f;
+    private Vector2 GetPointFromWaypoint(Transform wp)
+    {
+        BoxCollider2D box = wp.GetComponentInChildren<BoxCollider2D>(true);
+        if (box != null)
+        {
+            Vector2 worldPos = box.bounds.center;
+            Vector2 halfSize = box.bounds.extents;
+            return new Vector2(
+                Random.Range(worldPos.x - halfSize.x, worldPos.x + halfSize.x),
+                Random.Range(worldPos.y - halfSize.y, worldPos.y + halfSize.y)
+            );
+        }
+        return wp.position;
+    }
 
-        targetSpeed = maxSpeed;
+    private Vector2 GetLookaheadPoint(float lookaheadDistance)
+    {
+        Vector2 prev = (Vector2)transform.position;
+        foreach (var pt in targetQueue)
+        {
+            float segDist = Vector2.Distance(prev, pt);
+            if (lookaheadDistance <= segDist)
+                return Vector2.Lerp(prev, pt, lookaheadDistance / segDist);
+            lookaheadDistance -= segDist;
+            prev = pt;
+        }
+        return prev;
     }
 
     private bool IsOffTrack()
@@ -156,43 +156,22 @@ public class AiCarController : MonoBehaviour
         return Physics2D.OverlapPoint(transform.position, offTrackLayer);
     }
 
-    private float CheckAvoidance()
-    {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, avoidanceRayDistance, playerLayer);
-        if (hit.collider != null)
-            return (Random.value > 0.5f ? 1 : -1) * avoidanceStrength;
-        return 0f;
-    }
-
     private void OnDrawGizmosSelected()
     {
-        if (waypoints == null || waypoints.Length == 0) return;
+        if (targetQueue == null || targetQueue.Count == 0) return;
 
-        Gizmos.color = Color.green;
-        int lookAheadCount = 5;
-        Vector3 previousPoint = transform.position;
-        int tempIndex = currentIndex;
-
-        for (int i = 0; i < lookAheadCount; i++)
-        {
-            Vector3 nextPoint = (i == 0) ? currentTargetPoint : waypoints[tempIndex].position;
-            Gizmos.DrawLine(previousPoint, nextPoint);
-            previousPoint = nextPoint;
-            tempIndex = (tempIndex + 1) % waypoints.Length;
-        }
-
-        // Draw spheres
+        // Draw waypoints
         Gizmos.color = Color.yellow;
-        tempIndex = currentIndex;
-        for (int i = 0; i < lookAheadCount; i++)
+        Vector3 prev = transform.position;
+        foreach (var pt in targetQueue)
         {
-            Vector3 spherePos = (i == 0) ? (Vector3)currentTargetPoint : waypoints[tempIndex].position;
-            Gizmos.DrawSphere(spherePos, 2f);
-            tempIndex = (tempIndex + 1) % waypoints.Length;
+            Gizmos.DrawLine(prev, pt);
+            Gizmos.DrawSphere(pt, 4f);
+            prev = pt;
         }
 
-        // Draw avoidance ray
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + transform.up * avoidanceRayDistance);
+        // Draw lookahead point
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawSphere(currentTargetPoint, 5f);
     }
 }

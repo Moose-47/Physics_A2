@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5515172246325977192}
   - component: {fileID: 280917320710344098}
   - component: {fileID: -7050419785640352191}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AiRacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -169,25 +169,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceleration: 15
   deceleration: 10
-  baseMaxSpeed: 35
-  lookAheadDistance: 5
-  laneOffset: 0
+  baseMaxSpeed: 33
+  maxTurnAngle: 270
+  turnSpeed: 270
+  speedDependentTurnFactor: 0.3
   racingLine: {fileID: 0}
   waypoints: []
   currentIndex: 0
   offTrackLayer:
     serializedVersion: 2
     m_Bits: 8
-  offTrackSlowFactor: 0.9
-  avoidanceRayDistance: 4
-  avoidanceStrength: 1.5
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  wrongWayAngle: 100
-  stuckSpeedThreshold: 1
-  stuckTimeLimit: 2
-  recoveryTurnSpeed: 270
+  offTrackSlowFactor: 0.95
+  waypointThreshold: 15
+  lookaheadCount: 5
+  baseLookaheadDistance: 5
   canMove: 0
   CurrentLap: 0
 --- !u!114 &-7050419785640352191

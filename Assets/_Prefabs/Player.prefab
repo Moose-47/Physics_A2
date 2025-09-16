@@ -205,7 +205,7 @@ MonoBehaviour:
   brakeDeceleration: 18
   maxForwardSpeed: 35
   maxReverseSpeed: 12
-  maxTurnAngle: 45
+  maxTurnAngle: 120
   turnSpeed: 180
   speedDependentTurnFactor: 0.3
   offTrackLayer:
