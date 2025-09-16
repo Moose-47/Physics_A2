@@ -6,7 +6,7 @@ public class AiCarController : MonoBehaviour
     [Header("Movement Settings")]
     public float acceleration = 8f;
     public float deceleration = 6f;
-    public float baseMaxSpeed = 12f;
+    public float baseMaxSpeed = 33f;
 
     [Header("Track Settings")]
     public RacingLine racingLine;
@@ -22,22 +22,15 @@ public class AiCarController : MonoBehaviour
     public float avoidanceStrength = 1.5f;
     public LayerMask playerLayer;
 
-    [Header("Recovery Settings")]
-    public float wrongWayAngle = 100f;
-    public float stuckSpeedThreshold = 1f;
-    public float stuckTimeLimit = 2f;
-    public float recoveryTurnSpeed = 150f;
+    [Header("Waypoint Settings")]
+    public float waypointThreshold = 2f; // distance to consider waypoint reached
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private ColliderResizer cr;
 
     private float targetSpeed = 0f;
-    private bool recovering = false;
-    private float stuckTimer = 0f;
     private Vector2 currentTargetPoint;
-
-    private float laneOffset; // stable per car
 
     public bool canMove = false;
     [HideInInspector] public int CurrentLap = 0;
@@ -48,16 +41,8 @@ public class AiCarController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         cr = GetComponent<ColliderResizer>();
-        racingLine = FindAnyObjectByType<RacingLine>();
 
-        if (racingLine != null)
-            waypoints = racingLine.waypoints;
-
-        // Assign stable lane offset per car
-        laneOffset = Random.Range(-0.5f, 0.5f);
-
-        // Initialize the first target point
-        SetRandomTargetPoint();
+        baseMaxSpeed += Random.Range(-5f, 5f);
     }
 
     public void Initialize(Sprite chosenSprite)
@@ -67,12 +52,29 @@ public class AiCarController : MonoBehaviour
         cr?.ResetCollider();
     }
 
+    private void Start()
+    {
+        racingLine = FindAnyObjectByType<RacingLine>();
+        if (racingLine != null)
+            waypoints = racingLine.waypoints;
+        foreach (var wp in waypoints)
+        {
+            if (wp == null)
+            {
+                Debug.LogError("Null waypoint!");
+                continue;
+            }
+
+            // Search children, including inactive ones
+            BoxCollider2D box = wp.GetComponentInChildren<BoxCollider2D>(true);
+            Debug.Log($"Waypoint {wp.name} has BoxCollider2D? {box != null}");
+        }
+        SetRandomTargetPoint();
+    }
+
     private void FixedUpdate()
     {
         if (!canMove || waypoints == null || waypoints.Length < 2) return;
-
-        // Recovery overrides normal driving
-        if (CheckRecovery()) return;
 
         Vector2 toTarget = (currentTargetPoint - (Vector2)transform.position).normalized;
 
@@ -95,7 +97,7 @@ public class AiCarController : MonoBehaviour
             rb.linearVelocity *= offTrackSlowFactor;
 
         // --- Waypoint progression ---
-        if (Vector2.Distance(transform.position, currentTargetPoint) < 0.5f) // threshold
+        if (Vector2.Distance(transform.position, currentTargetPoint) < waypointThreshold)
         {
             currentIndex = (currentIndex + 1) % waypoints.Length;
             SetRandomTargetPoint();
@@ -108,25 +110,29 @@ public class AiCarController : MonoBehaviour
 
         Transform wp = waypoints[currentIndex];
         BoxCollider2D box = wp.GetComponent<BoxCollider2D>();
+        if (box == null)
+            box = wp.GetComponentInChildren<BoxCollider2D>();
+
+        if (box != null)
+            Debug.Log($"Found BoxCollider2D on {box.gameObject.name}");
+        else
+            Debug.LogError($"No BoxCollider2D found for waypoint {wp.name}");
         if (box != null)
         {
-            Vector2 size = box.size;
-            Vector2 center = (Vector2)wp.position + box.offset;
+            Vector2 worldPos = wp.position;
+            Vector2 halfSize = box.size * 0.5f;
 
-            float x = Random.Range(center.x - size.x / 2f, center.x + size.x / 2f);
-            float y = Random.Range(center.y - size.y / 2f, center.y + size.y / 2f);
+            float x = worldPos.x + Random.Range(-halfSize.x, halfSize.x);
+            float y = worldPos.y + Random.Range(-halfSize.y, halfSize.y);
+
             currentTargetPoint = new Vector2(x, y);
+            Debug.Log("Random point set");
         }
         else
         {
             currentTargetPoint = wp.position;
+            Debug.Log("Center set");
         }
-
-        // Apply lane offset
-        int prevIndex = (currentIndex - 1 + waypoints.Length) % waypoints.Length;
-        Vector2 segment = (Vector2)(wp.position - waypoints[prevIndex].position);
-        Vector2 sideDir = new Vector2(-segment.y, segment.x).normalized;
-        currentTargetPoint += sideDir * laneOffset;
     }
 
     private void AdjustSpeedForCorners(Vector2 target)
@@ -158,61 +164,34 @@ public class AiCarController : MonoBehaviour
         return 0f;
     }
 
-    private bool CheckRecovery()
-    {
-        Vector2 toTarget = (currentTargetPoint - (Vector2)transform.position).normalized;
-        float angle = Vector2.Angle(transform.up, toTarget);
-
-        if (angle > wrongWayAngle) recovering = true;
-
-        if (rb.linearVelocity.magnitude < stuckSpeedThreshold)
-        {
-            stuckTimer += Time.fixedDeltaTime;
-            if (stuckTimer > stuckTimeLimit) recovering = true;
-        }
-        else stuckTimer = 0f;
-
-        if (recovering)
-        {
-            float steerInput = Mathf.Sign(Vector2.SignedAngle(transform.up, toTarget));
-            rb.MoveRotation(rb.rotation - steerInput * recoveryTurnSpeed * Time.fixedDeltaTime);
-            rb.linearVelocity = transform.up * (baseMaxSpeed * 0.5f);
-
-            if (angle < 30f)
-            {
-                recovering = false;
-                stuckTimer = 0f;
-            }
-            return true;
-        }
-
-        return false;
-    }
-
     private void OnDrawGizmosSelected()
     {
         if (waypoints == null || waypoints.Length == 0) return;
 
         Gizmos.color = Color.green;
         int lookAheadCount = 5;
-        int lookaheadIndex = currentIndex;
         Vector3 previousPoint = transform.position;
+        int tempIndex = currentIndex;
 
         for (int i = 0; i < lookAheadCount; i++)
         {
-            lookaheadIndex = (lookaheadIndex + 1) % waypoints.Length;
-            Vector3 nextPoint = waypoints[lookaheadIndex].position;
+            Vector3 nextPoint = (i == 0) ? currentTargetPoint : waypoints[tempIndex].position;
             Gizmos.DrawLine(previousPoint, nextPoint);
             previousPoint = nextPoint;
+            tempIndex = (tempIndex + 1) % waypoints.Length;
         }
 
-        lookaheadIndex = currentIndex;
+        // Draw spheres
+        Gizmos.color = Color.yellow;
+        tempIndex = currentIndex;
         for (int i = 0; i < lookAheadCount; i++)
         {
-            lookaheadIndex = (lookaheadIndex + 1) % waypoints.Length;
-            Gizmos.DrawSphere(waypoints[lookaheadIndex].position, 0.2f);
+            Vector3 spherePos = (i == 0) ? (Vector3)currentTargetPoint : waypoints[tempIndex].position;
+            Gizmos.DrawSphere(spherePos, 2f);
+            tempIndex = (tempIndex + 1) % waypoints.Length;
         }
 
+        // Draw avoidance ray
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + transform.up * avoidanceRayDistance);
     }
