@@ -3409,6 +3409,88 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1859524727}
   m_CullTransparentMesh: 1
+--- !u!1 &1872563114
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1872563117}
+  - component: {fileID: 1872563116}
+  - component: {fileID: 1872563115}
+  m_Layer: 0
+  m_Name: VehicleSelection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1872563115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1872563114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90b465fc8d36b02439b4721d1275a9b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vehicleOptions:
+  - {fileID: 1700693452}
+  - {fileID: 2052931438}
+  - {fileID: 1795652768}
+  - {fileID: 1871980}
+  - {fileID: 1591164521}
+  - {fileID: 136527129}
+  - {fileID: 1968424045}
+  - {fileID: 1914998982}
+  - {fileID: 492571198}
+  - {fileID: 1214943393}
+  - {fileID: 1143305807}
+  - {fileID: 1955125251}
+  - {fileID: 1904395568}
+  - {fileID: 1340630381}
+  - {fileID: 100056418}
+  - {fileID: 1563104405}
+  - {fileID: 1859524729}
+  - {fileID: 791054091}
+  confirmVehicleButton: {fileID: 234536931}
+  vehicleSelectionPanel: {fileID: 1564737892}
+  designPanels: []
+  confirmDesignButton: {fileID: 234536931}
+  mainMenuButton: {fileID: 0}
+  backButton: {fileID: 1283343703}
+--- !u!114 &1872563116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1872563114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec7b12e3c634f454a8b46dc17ed6f2eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1872563117
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1872563114}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1069.8531, y: 452.72147, z: -4.6465244}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1904395566
 GameObject:
   m_ObjectHideFlags: 0
@@ -4112,3 +4194,4 @@ SceneRoots:
   - {fileID: 1002106375}
   - {fileID: 649314882}
   - {fileID: 839762256}
+  - {fileID: 1872563117}

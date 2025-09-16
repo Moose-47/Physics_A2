@@ -30,7 +30,7 @@ public class VehicleSelection : MonoBehaviour
 
     public void ConfirmSelection()
     {
-        SceneManager.LoadScene("RaceScene");
+        SceneManager.LoadScene("Controls");
     }
 
     public Sprite GetSelectedSprite()
