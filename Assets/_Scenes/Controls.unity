@@ -462,7 +462,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Right Stick: Steer
+  m_text: 'Left Stick: Steer
 
     Right Trigger: Accelerate
 
