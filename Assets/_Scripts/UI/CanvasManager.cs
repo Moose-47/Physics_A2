@@ -39,7 +39,7 @@ public class CanvasManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        // -525,-315,-105,95,300,510
     }
     private void SettingsFlip() // to activate Settings Canvas
     {
