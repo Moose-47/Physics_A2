@@ -67,7 +67,6 @@ public class RaceManager : MonoBehaviour
         if (other.CompareTag("Player") && index == currentCheckpointIndex)
         {
             currentCheckpointIndex++;
-            Debug.Log("Player cleared checkpoint " + index);
         }
     }
 
@@ -79,7 +78,6 @@ public class RaceManager : MonoBehaviour
             {
                 currentLap++;
                 currentCheckpointIndex = 0;
-                Debug.Log("Player completed lap " + currentLap);
 
                 if (currentLap >= totalLaps)
                 {
@@ -102,16 +100,13 @@ public class RaceManager : MonoBehaviour
                     ai.EndLap(raceTimer);
                 }
 
-
                 // Increment lap count
                 ai.CurrentLap++;
-                Debug.Log(ai.name + " lap: " + ai.CurrentLap);
 
                 // Record finish time immediately if done
                 if (ai.CurrentLap >= totalLaps && aiFinishTimes[ai] < 0f)
                 {
                     aiFinishTimes[ai] = raceTimer;
-                    Debug.Log(ai.name + " finished race at " + raceTimer + " seconds");
                 }
             }
         }
@@ -139,33 +134,10 @@ public class RaceManager : MonoBehaviour
             }
             else
             {
-                // AI hasn't completed a single lap yet -> DNF
-                predictedAiTimes[ai] = 0f; // or -1f if you prefer
+                //AI hasn't completed a single lap yet set time to 0 DNF
+                predictedAiTimes[ai] = 0f; 
             }
         }
-        // Print all times
-        Debug.Log("----- Race Finish Times -----");
-        Debug.Log($"Player: {raceTimer:F2} seconds (FINISHED)");
-
-        foreach (var kvp in predictedAiTimes)
-        {
-            string status;
-            string timeStr;
-
-            if (kvp.Value <= 0f)
-            {
-                status = "DNF";
-                timeStr = "DNF";
-            }
-            else
-            {
-                status = aiFinishTimes[kvp.Key] >= 0f ? "FINISHED" : "PREDICTED";
-                timeStr = kvp.Value.ToString("F2") + "s";
-            }
-
-            Debug.Log($"{kvp.Key.name}: {timeStr} ({status})");
-        }
-
         //---------- Prepare results list using sprites ----------
         //List of tuples (sprite, finishTime)
         List<(Sprite sprite, float finishTime)> results = new List<(Sprite sprite, float finishTime)>();
@@ -191,40 +163,5 @@ public class RaceManager : MonoBehaviour
 
         //Load results scene
         SceneManager.LoadScene("RaceFinished");
-    }
-
-    ///<summary>
-    ///Computes remaining distance for AI to finish race
-    ///</summary>
-    private float ComputeRemainingDistance(AiCarController ai)
-    {
-        float distance = 0f;
-        int lapsRemaining = totalLaps - ai.CurrentLap;
-
-        Transform[] waypoints = ai.waypoints;
-        int currentIndex = ai.currentIndex;
-
-        if (waypoints == null || waypoints.Length < 2)
-            return 0f;
-
-        //Distance from AI's current position to next waypoint
-        distance += Vector2.Distance(ai.transform.position, waypoints[currentIndex].position);
-
-        //Distance through remaining waypoints in current lap
-        for (int i = currentIndex; i < waypoints.Length - 1; i++)
-        {
-            distance += Vector2.Distance(waypoints[i].position, waypoints[i + 1].position);
-        }
-
-        //Add full lap distance for remaining laps
-        float lapDistance = 0f;
-        for (int i = 0; i < waypoints.Length - 1; i++)
-        {
-            lapDistance += Vector2.Distance(waypoints[i].position, waypoints[i + 1].position);
-        }
-
-        distance += lapDistance * (lapsRemaining - 1);
-
-        return distance;
     }
 }

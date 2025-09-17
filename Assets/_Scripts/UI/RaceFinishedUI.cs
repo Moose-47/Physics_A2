@@ -18,7 +18,8 @@ public class RaceFinishedUI : MonoBehaviour
             if (i < results.Count)
             {
                 var entry = results[i];
-                resultsText[i].text = $"{i + 1}. {entry.finishTime:F2}"; //F2 rounds to two decimal places.
+                string timeText = entry.finishTime == 0f ? "DNF" : entry.finishTime.ToString("F2");
+                resultsText[i].text = $"{timeText}";
                 carImages[i].sprite = entry.sprite;
             }
             else
