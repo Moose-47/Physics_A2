@@ -102,7 +102,7 @@ public class RaceManager : MonoBehaviour
                 currentLap++;             // Increment player's lap
                 if (lapText != null)
                 {
-                    lapText.text = "Lap " + Mathf.Clamp(currentLap + 1, 1, totalLaps) + " / " + totalLaps;
+                    lapText.text = "Lap: " + Mathf.Clamp(currentLap + 1, 1, totalLaps) + " / " + totalLaps;
                 }
                 currentCheckpointIndex = 0; // Reset checkpoints for next lap
 
