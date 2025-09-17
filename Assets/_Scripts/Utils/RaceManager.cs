@@ -28,7 +28,7 @@ public class RaceManager : MonoBehaviour
     //Dictionary storing actual finish times of AI cars. Value <0 means AI hasn't finished yet.
     private Dictionary<AiCarController, float> aiFinishTimes = new Dictionary<AiCarController, float>();
 
-    public int CurrentLap => currentLap;
+    public int CurrentLap => currentLap; // Allows other scripts to read the player's current lap
 
     ///<summary>
     ///Automatically finds all AI cars in the scene when this object is enabled
@@ -40,11 +40,13 @@ public class RaceManager : MonoBehaviour
         AiCarController[] foundAiCars = FindObjectsByType<AiCarController>(FindObjectsSortMode.None);
         aiCars = new List<AiCarController>(foundAiCars);
 
+        //Initialize the AI finish times dictionary
         foreach (var ai in aiCars)
         {
             aiFinishTimes[ai] = -1f; //-1 means AI hasn't finished
         }
 
+        // Enable AI movement and start their lap timer
         foreach (var ai in foundAiCars)
         {
             ai.canMove = true;
@@ -62,106 +64,117 @@ public class RaceManager : MonoBehaviour
             raceTimer += Time.deltaTime;
     }
 
+    ///<summary>
+    ///Called by checkpoints when the player collides with them.
+    ///Only increments if the player is at the correct checkpoint in sequence.
+    ///</summary>
+    ///<param name="index">Index of the checkpoint that was hit</param>
+    ///<param name="other">Collider of the object that triggered the checkpoint</param>
     public void PlayerHitCheckpoint(int index, Collider2D other)
     {
+        //Only allow the player to progress checkpoints
         if (other.CompareTag("Player") && index == currentCheckpointIndex)
         {
             currentCheckpointIndex++;
         }
     }
 
+    ///<summary>
+    ///Called when any racer (player or AI) crosses the finish line trigger.
+    ///Updates laps, records lap times for AI, and records finish times if race is completed.
+    ///</summary>
+    ///<param name="other">Collider of the object that triggered the finish line</param>
     public void HitFinish(Collider2D other)
     {
+        // ---------- PLAYER FINISH LOGIC ----------
         if (other.CompareTag("Player") && !playerFinished)
         {
+            // Only count the lap if player has hit all checkpoints
             if (currentCheckpointIndex == checkpoints.Length)
             {
-                currentLap++;
-                currentCheckpointIndex = 0;
+                currentLap++;             // Increment player's lap
+                currentCheckpointIndex = 0; // Reset checkpoints for next lap
 
+                // If the player completed all laps, finish the race
                 if (currentLap >= totalLaps)
                 {
-                    if (!playerFinished)
-                    {
-                        playerFinished = true;
-                        CalculateAiPredictedFinishTimes();
-                    }
+                    playerFinished = true;         // Mark player as finished
+                    CalculateAiPredictedFinishTimes(); // Calculate AI predicted times and go to results
                 }
             }
         }
+        // ---------- AI FINISH LOGIC ----------
         else if (other.CompareTag("Ai"))
         {
             AiCarController ai = other.GetComponent<AiCarController>();
             if (ai != null)
             {
+                // Record the AI's lap time if this is a valid lap
                 if (ai.CurrentLap >= 0)
                 {
-                    // End current lap and store lap time
-                    ai.EndLap(raceTimer);
+                    ai.EndLap(raceTimer); // Store the lap time internally in the AI
                 }
 
-                // Increment lap count
-                ai.CurrentLap++;
+                ai.CurrentLap++; // Increment AI lap counter
 
-                // Record finish time immediately if done
+                // Record the AI's overall finish time if they've completed all laps
                 if (ai.CurrentLap >= totalLaps && aiFinishTimes[ai] < 0f)
                 {
-                    aiFinishTimes[ai] = raceTimer;
+                    aiFinishTimes[ai] = raceTimer; // Store the finish time
                 }
             }
         }
     }
 
-    ///<summary>
-    ///Calculates predicted finish times for AI cars that haven't finished yet.
-    ///Uses remaining distance and current forward speed for estimation.
-    ///</summary>
+    /// <summary>
+    /// Calculates predicted finish times for AI racers that haven't finished yet.
+    /// Uses the AI's average lap time to estimate total finish time.
+    /// </summary>
     private void CalculateAiPredictedFinishTimes()
     {
+        // Dictionary storing finish or predicted times for display
         Dictionary<AiCarController, float> predictedAiTimes = new Dictionary<AiCarController, float>();
 
         foreach (var ai in aiCars)
         {
             if (aiFinishTimes[ai] >= 0f)
             {
-                // AI has finished
+                // AI has finished the race, use actual finish time
                 predictedAiTimes[ai] = aiFinishTimes[ai];
             }
             else if (ai.lapTimes.Count > 0)
             {
-                // AI has completed at least one lap, predict finish
+                // AI has completed at least 1 lap, estimate finish time based on average lap
                 predictedAiTimes[ai] = ai.AverageLapTime() * totalLaps;
             }
             else
             {
-                //AI hasn't completed a single lap yet set time to 0 DNF
-                predictedAiTimes[ai] = 0f; 
+                // AI hasn't completed a single lap yet, mark as DNF (Did Not Finish)
+                predictedAiTimes[ai] = 0f;
             }
         }
-        //---------- Prepare results list using sprites ----------
-        //List of tuples (sprite, finishTime)
+
+        // ---------- Prepare results for the UI ----------
         List<(Sprite sprite, float finishTime)> results = new List<(Sprite sprite, float finishTime)>();
 
-        //Add player
+        // Add player
         Sprite playerSprite = player.GetComponent<SpriteRenderer>().sprite;
         results.Add((playerSprite, raceTimer));
 
-        //Add AI cars
+        // Add all AI cars
         foreach (var kvp in predictedAiTimes)
         {
-            //kvp.Key = AiCarController reference
-            //kvp.Value = predicted finish time
             Sprite aiSprite = kvp.Key.GetComponent<SpriteRenderer>().sprite;
             results.Add((aiSprite, kvp.Value));
         }
 
-        //Sort by finish time ascending (first place first)
+        // Sort results by finish time (lowest time first = first place)
         results.Sort((a, b) => a.finishTime.CompareTo(b.finishTime));
 
-        //Send results to a singleton holder to display in the next scene
+        // Send the sorted results to the RaceResultsHolder singleton
         RaceResultsHolder.Instance.SetResults(results);
 
-        //Load results scene
+        // Load the race finished scene
         SceneManager.LoadScene("RaceFinished");
     }
 }
