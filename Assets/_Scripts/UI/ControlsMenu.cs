@@ -12,7 +12,7 @@ public class ControlsMenu : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        continuebtn.onClick.AddListener(() => SceneManager.LoadScene("Thomas"));
+        continuebtn.onClick.AddListener(() => SceneManager.LoadScene("RaceScene"));
     }
 
     // Update is called once per frame
