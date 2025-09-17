@@ -184,7 +184,8 @@ MonoBehaviour:
   lookaheadCount: 5
   baseLookaheadDistance: 5
   canMove: 0
-  CurrentLap: 0
+  CurrentLap: -1
+  lapTimes: []
 --- !u!114 &-7050419785640352191
 MonoBehaviour:
   m_ObjectHideFlags: 0

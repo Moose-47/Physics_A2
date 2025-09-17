@@ -48,6 +48,7 @@ public class RaceManager : MonoBehaviour
         foreach (var ai in foundAiCars)
         {
             ai.canMove = true;
+            ai.StartLap(raceTimer);
         }
         player.canMove = true;
     }
@@ -95,7 +96,18 @@ public class RaceManager : MonoBehaviour
             AiCarController ai = other.GetComponent<AiCarController>();
             if (ai != null)
             {
+                if (ai.CurrentLap >= 0)
+                {
+                    // End current lap and store lap time
+                    ai.EndLap(raceTimer);
+                }
+
+
+                // Increment lap count
                 ai.CurrentLap++;
+                Debug.Log(ai.name + " lap: " + ai.CurrentLap);
+
+                // Record finish time immediately if done
                 if (ai.CurrentLap >= totalLaps && aiFinishTimes[ai] < 0f)
                 {
                     aiFinishTimes[ai] = raceTimer;
@@ -117,26 +129,42 @@ public class RaceManager : MonoBehaviour
         {
             if (aiFinishTimes[ai] >= 0f)
             {
-                //AI has already finished, use recorded finish time
+                // AI has finished
                 predictedAiTimes[ai] = aiFinishTimes[ai];
+            }
+            else if (ai.lapTimes.Count > 0)
+            {
+                // AI has completed at least one lap, predict finish
+                predictedAiTimes[ai] = ai.AverageLapTime() * totalLaps;
             }
             else
             {
-                //AI hasn't finished, calculate predicted finish time
-                float remainingDistance = ComputeRemainingDistance(ai);
-                float avgSpeed = Mathf.Max(ai.CurrentForwardSpeed, 0.1f); //Avoid divide by zero
-                float predictedTime = raceTimer + remainingDistance / avgSpeed;
-
-                predictedAiTimes[ai] = predictedTime;
+                // AI hasn't completed a single lap yet -> DNF
+                predictedAiTimes[ai] = 0f; // or -1f if you prefer
             }
         }
-            Debug.Log("----- AI Finish Times (Final / Predicted) -----");
-            foreach (var kvp in predictedAiTimes)
+        // Print all times
+        Debug.Log("----- Race Finish Times -----");
+        Debug.Log($"Player: {raceTimer:F2} seconds (FINISHED)");
+
+        foreach (var kvp in predictedAiTimes)
+        {
+            string status;
+            string timeStr;
+
+            if (kvp.Value <= 0f)
             {
-                string status = aiFinishTimes[kvp.Key] >= 0f ? "FINISHED" : "PREDICTED";
-                Debug.Log($"{kvp.Key.name}: {kvp.Value:F2} seconds ({status})");
+                status = "DNF";
+                timeStr = "DNF";
             }
-            Debug.Log("-----------------------------------------------");
+            else
+            {
+                status = aiFinishTimes[kvp.Key] >= 0f ? "FINISHED" : "PREDICTED";
+                timeStr = kvp.Value.ToString("F2") + "s";
+            }
+
+            Debug.Log($"{kvp.Key.name}: {timeStr} ({status})");
+        }
 
         //---------- Prepare results list using sprites ----------
         //List of tuples (sprite, finishTime)

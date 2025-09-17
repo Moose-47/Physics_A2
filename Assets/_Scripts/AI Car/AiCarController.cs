@@ -33,10 +33,14 @@ public class AiCarController : MonoBehaviour
     private Queue<Vector2> targetQueue = new Queue<Vector2>();
     private Vector2 currentTargetPoint;
     private float targetSpeed = 0f;
+    private float lapStartTime = 0f;
 
     public bool canMove = false;
-    [HideInInspector] public int CurrentLap = 0;
+
+    public int CurrentLap = -1;
     [HideInInspector] public int CurrentForwardSpeed => (int)Vector2.Dot(rb.linearVelocity, transform.up);
+
+    [HideInInspector] public List<float> lapTimes = new List<float>(); // store completed lap times
 
     private void Awake()
     {
@@ -154,6 +158,29 @@ public class AiCarController : MonoBehaviour
     private bool IsOffTrack()
     {
         return Physics2D.OverlapPoint(transform.position, offTrackLayer);
+    }
+
+    // Call this at the start of the race
+    public void StartLap(float currentTime)
+    {
+        lapStartTime = currentTime;
+    }
+
+    // Call this when completing a lap
+    public void EndLap(float currentTime)
+    {
+        float lapTime = currentTime - lapStartTime;
+        lapTimes.Add(lapTime);
+        lapStartTime = currentTime; // start new lap
+    }
+
+    // Compute average lap time
+    public float AverageLapTime()
+    {
+        if (lapTimes.Count == 0) return 0f;
+        float sum = 0f;
+        foreach (var t in lapTimes) sum += t;
+        return sum / lapTimes.Count;
     }
 
     private void OnDrawGizmosSelected()
