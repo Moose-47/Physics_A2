@@ -9331,6 +9331,8 @@ MonoBehaviour:
   countdownText: {fileID: 651443934}
   raceManager: {fileID: 2056812818}
   countdownFrom: 5
+  countdownSfx: {fileID: 8300000, guid: ba525820adaed0a4d8bbaa3e59b01b63, type: 3}
+  startSfx: {fileID: 8300000, guid: 995ffee887a341a4fbd5cde62a9f92f8, type: 3}
 --- !u!114 &1945168683
 MonoBehaviour:
   m_ObjectHideFlags: 0
