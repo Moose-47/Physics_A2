@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 ///<summary>
 ///Tracks player and AI laps, checkpoints, and calculates AI predicted finish times
@@ -24,6 +25,9 @@ public class RaceManager : MonoBehaviour
     private bool playerFinished = false;    //Flag indicating if player finished race
 
     private float raceTimer = 0f; //Global race timer (all laps)
+
+    public TMP_Text lapText;
+    public TMP_Text timerText;
 
     //Dictionary storing actual finish times of AI cars. Value <0 means AI hasn't finished yet.
     private Dictionary<AiCarController, float> aiFinishTimes = new Dictionary<AiCarController, float>();
@@ -61,7 +65,10 @@ public class RaceManager : MonoBehaviour
     private void Update()
     {
         if (!playerFinished)
+        {
             raceTimer += Time.deltaTime;
+            timerText.text = $"TIME: {raceTimer.ToString("F2")}";
+        }
     }
 
     ///<summary>
@@ -93,6 +100,10 @@ public class RaceManager : MonoBehaviour
             if (currentCheckpointIndex == checkpoints.Length)
             {
                 currentLap++;             // Increment player's lap
+                if (lapText != null)
+                {
+                    lapText.text = "Lap " + Mathf.Clamp(currentLap + 1, 1, totalLaps) + " / " + totalLaps;
+                }
                 currentCheckpointIndex = 0; // Reset checkpoints for next lap
 
                 // If the player completed all laps, finish the race
@@ -176,5 +187,6 @@ public class RaceManager : MonoBehaviour
 
         // Load the race finished scene
         SceneManager.LoadScene("RaceFinished");
+
     }
 }
