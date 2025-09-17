@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
     private AudioSource audioSource;
 
     public bool canMove = false;             //Prevent player from moving while the countdown is happening
-
+    private bool playingAudio = false;
     private void Awake()
     {
         //Cache the Rigidbody2D for physics calculations
@@ -82,11 +82,22 @@ public class PlayerController : MonoBehaviour
 
         //Subscribe to acceleration input
         accelerateAction.performed += ctx => accelerating = true;
-        accelerateAction.canceled += ctx => accelerating = false;
+        accelerateAction.canceled += ctx =>
+        {
+            accelerating = false;
+            playingAudio = false;
+            audioSource.Stop();
+        };
 
         //Subscribe to brake input
         brakeAction.performed += ctx => braking = true;
-        brakeAction.canceled += ctx => braking = false;
+        brakeAction.canceled += ctx =>
+        {
+            braking = false;
+            playingAudio = false;
+            audioSource.Stop();
+            audioSource.clip = idle;
+        };
     }
 
     private void OnDisable()
@@ -96,10 +107,21 @@ public class PlayerController : MonoBehaviour
         moveAction.canceled -= ctx => steerInput = 0f;
 
         accelerateAction.performed -= ctx => accelerating = true;
-        accelerateAction.canceled -= ctx => accelerating = false;
+        accelerateAction.canceled -= ctx => 
+        { 
+            accelerating = false; 
+            playingAudio = false; 
+            audioSource.Stop();
+        };
 
         brakeAction.performed -= ctx => braking = true;
-        brakeAction.canceled -= ctx => braking = false;
+        brakeAction.canceled -= ctx => 
+        { 
+            braking = false; 
+            playingAudio = false; 
+            audioSource.Stop();
+            audioSource.clip = idle;
+        };
 
         //Disable all actions
         moveAction.Disable();
@@ -122,9 +144,12 @@ public class PlayerController : MonoBehaviour
         // --- Handle acceleration/braking/reverse ---
         if (accelerating)
         {
-            
-            audioSource.clip = accel;
-            audioSource.Play();
+            if (!playingAudio)
+            {
+                playingAudio = true;
+                audioSource.clip = accel;
+                audioSource.Play();
+            }
             //If accelerating, increase speed by acceleration * deltaTime
             targetSpeed += acceleration * Time.fixedDeltaTime;
 
@@ -133,8 +158,12 @@ public class PlayerController : MonoBehaviour
         }
         else if (braking)
         {
-            audioSource.clip = decel;
-            audioSource.Play();
+            if (!playingAudio)
+            {
+                playingAudio = true;
+                audioSource.clip = decel;
+                audioSource.Play();
+            }
             //If braking, reduce speed by brakeDeceleration * deltaTime
             targetSpeed -= brakeDeceleration * Time.fixedDeltaTime;
 
@@ -146,8 +175,11 @@ public class PlayerController : MonoBehaviour
             //Natural deceleration: slow down gradually if neither accelerating nor braking
             if (currentSpeed > 0f)
             {
-                audioSource.clip = idle;
-                audioSource.Play();
+                if (audioSource.clip != idle)
+                {
+                    audioSource.clip = idle;
+                    audioSource.Play();
+                }
                 //Moving forward: subtract deceleration to slow down
                 targetSpeed -= deceleration * Time.fixedDeltaTime;
 
@@ -156,8 +188,11 @@ public class PlayerController : MonoBehaviour
             }
             else if (currentSpeed < 0f)
             {
-                audioSource.clip = accel;
-                audioSource.Play();
+                if (audioSource.clip != idle)
+                {
+                    audioSource.clip = accel;
+                    audioSource.Play();
+                }
                 //Moving backward: add deceleration (pushes towards 0)
                 targetSpeed += deceleration * Time.fixedDeltaTime;
 
