@@ -160,15 +160,17 @@ public class PlayerController : MonoBehaviour
         }
         else if (braking)
         {
-            if (!playingAudio && currentSpeed > 0f)
+            if (!playingAudio)
             {
                 playingAudio = true;
                 audioSource.clip = decel;
                 audioSource.Play();
             }
-            if (currentSpeed < 0f)
+            if (currentSpeed < 0f && audioSource.clip == decel)
             {
+                audioSource.Stop();
                 audioSource.clip = accel;
+                audioSource.Play();
             }
             //If braking, reduce speed by brakeDeceleration * deltaTime
             targetSpeed -= brakeDeceleration * Time.fixedDeltaTime;

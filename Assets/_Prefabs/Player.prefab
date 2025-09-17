@@ -214,8 +214,8 @@ MonoBehaviour:
     m_Bits: 8
   offTrackSlowFactor: 0.97
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  accel: {fileID: 8300000, guid: 2d6ceff8ba698e24db7d2acf205b4e53, type: 3}
-  decel: {fileID: 8300000, guid: 623625000c9edc54ab08f1957ceb256c, type: 3}
+  accel: {fileID: 8300000, guid: cfc73e64bd2297749b16949b598c0d7e, type: 3}
+  decel: {fileID: 8300000, guid: c7f9d4880649b0b4e8686d3e0303e5cf, type: 3}
   idle: {fileID: 8300000, guid: a46e0c9832c9c4242a3a885f958770f1, type: 3}
   canMove: 0
 --- !u!114 &-5771316731276299600
