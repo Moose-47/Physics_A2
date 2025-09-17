@@ -3460,10 +3460,7 @@ MonoBehaviour:
   - {fileID: 791054091}
   confirmVehicleButton: {fileID: 234536931}
   vehicleSelectionPanel: {fileID: 1564737892}
-  designPanels: []
-  confirmDesignButton: {fileID: 234536931}
-  mainMenuButton: {fileID: 0}
-  backButton: {fileID: 1283343703}
+  mainMenuButton: {fileID: 1283343703}
 --- !u!114 &1872563116
 MonoBehaviour:
   m_ObjectHideFlags: 0
