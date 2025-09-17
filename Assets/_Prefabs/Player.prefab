@@ -48,7 +48,7 @@ GameObject:
   - component: {fileID: -5771316731276299600}
   m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -140,7 +140,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: b0bab6da7cf555e4ab9e15c92dfd47b5, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -211,7 +211,7 @@ MonoBehaviour:
   offTrackLayer:
     serializedVersion: 2
     m_Bits: 8
-  offTrackSlowFactor: 0.9
+  offTrackSlowFactor: 0.97
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   canMove: 0
 --- !u!114 &-5771316731276299600

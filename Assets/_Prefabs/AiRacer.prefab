@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -7050419785640352191}
   m_Layer: 7
   m_Name: AiRacer
-  m_TagString: Untagged
+  m_TagString: Ai
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73,7 +73,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: b0bab6da7cf555e4ab9e15c92dfd47b5, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceleration: 15
   deceleration: 10
-  baseMaxSpeed: 33
+  baseMaxSpeed: 31
   maxTurnAngle: 270
   turnSpeed: 270
   speedDependentTurnFactor: 0.3
