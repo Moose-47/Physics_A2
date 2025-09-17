@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RaceFinishedUI : MonoBehaviour
@@ -8,6 +9,7 @@ public class RaceFinishedUI : MonoBehaviour
     [Header("UI Text Elements (element 0 = 1st place")]
     public TMP_Text[] resultsText;
     public Image[] carImages;
+    public Button returnToMain;
 
     private void Start()
     {
@@ -28,5 +30,8 @@ public class RaceFinishedUI : MonoBehaviour
                 carImages[i].sprite = null;
             }
         }
+        returnToMain.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
+            
+    
     }
 }
