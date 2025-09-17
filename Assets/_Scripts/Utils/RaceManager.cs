@@ -61,61 +61,42 @@ public class RaceManager : MonoBehaviour
             raceTimer += Time.deltaTime;
     }
 
-    ///<summary>
-    ///Handles collision detection with checkpoints and finish line for both player and AI
-    ///</summary>
-    private void OnTriggerEnter2D(Collider2D other)
+    public void PlayerHitCheckpoint(int index, Collider2D other)
     {
-        //---------- Player Logic ----------
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && index == currentCheckpointIndex)
         {
-            //Check if player crossed the expected checkpoint
-            for (int i = 0; i < checkpoints.Length; i++)
-            {
-                if (other.transform == checkpoints[i] && i == currentCheckpointIndex)
-                {
-                    currentCheckpointIndex++;
-                    Debug.Log("Player cleared checkpoint " + currentCheckpointIndex);
-                    break;
-                }
-            }
+            currentCheckpointIndex++;
+            Debug.Log("Player cleared checkpoint " + index);
+        }
+    }
 
-            //Check if player crossed the finish line
-            if (other.transform == finishLine && !playerFinished)
+    public void HitFinish(Collider2D other)
+    {
+        if (other.CompareTag("Player") && !playerFinished)
+        {
+            if (currentCheckpointIndex == checkpoints.Length)
             {
-                if (currentCheckpointIndex == checkpoints.Length) //Player followed all checkpoints
-                {
-                    currentLap++;
-                    currentCheckpointIndex = 0; //Reset for next lap
-                    Debug.Log("Player completed lap " + currentLap);
+                currentLap++;
+                currentCheckpointIndex = 0;
+                Debug.Log("Player completed lap " + currentLap);
 
-                    if (currentLap >= totalLaps)
+                if (currentLap >= totalLaps)
+                {
+                    if (!playerFinished)
                     {
                         playerFinished = true;
-                        Debug.Log("Player finished race! Calculating AI predicted times...");
                         CalculateAiPredictedFinishTimes();
                     }
                 }
-                else
-                {
-                    Debug.Log("Lap not counted - missed checkpoint");
-                }
             }
         }
-
-        //---------- AI Logic ----------
-        if (other.CompareTag("Ai"))
+        else if (other.CompareTag("Ai"))
         {
             AiCarController ai = other.GetComponent<AiCarController>();
-
-            //Only increment AI lap if it crosses finish line
-            if (ai != null && other.transform == finishLine)
+            if (ai != null)
             {
                 ai.CurrentLap++;
-                Debug.Log(ai.name + " completed lap " + ai.CurrentLap);
-
-                //Record finish time if AI completes last lap and hasn't been recorded
-                if (ai.CurrentLap >= totalLaps && aiFinishTimes.ContainsKey(ai) && aiFinishTimes[ai] < 0f)
+                if (ai.CurrentLap >= totalLaps && aiFinishTimes[ai] < 0f)
                 {
                     aiFinishTimes[ai] = raceTimer;
                     Debug.Log(ai.name + " finished race at " + raceTimer + " seconds");
@@ -149,6 +130,13 @@ public class RaceManager : MonoBehaviour
                 predictedAiTimes[ai] = predictedTime;
             }
         }
+            Debug.Log("----- AI Finish Times (Final / Predicted) -----");
+            foreach (var kvp in predictedAiTimes)
+            {
+                string status = aiFinishTimes[kvp.Key] >= 0f ? "FINISHED" : "PREDICTED";
+                Debug.Log($"{kvp.Key.name}: {kvp.Value:F2} seconds ({status})");
+            }
+            Debug.Log("-----------------------------------------------");
 
         //---------- Prepare results list using sprites ----------
         //List of tuples (sprite, finishTime)
