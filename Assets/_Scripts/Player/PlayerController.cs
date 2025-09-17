@@ -21,6 +21,11 @@ public class PlayerController : MonoBehaviour
     [Header("Input Actions")]
     public InputActionAsset inputActions;     //The Input Actions asset from Unity's new Input System
 
+    [Header("Sound Effects")]
+    public AudioClip accel;
+    public AudioClip decel;
+    public AudioClip idle;
+
     // --- Input actions ---
     private InputAction moveAction;           //Controls steering: x-axis for left/right
     private InputAction accelerateAction;     //Button or trigger for accelerating forward
@@ -34,6 +39,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;                   //Reference to the Rigidbody2D for physics
     private SpriteRenderer sr;                //Reference to SpriteRenderer for setting selected sprite
     private ColliderResizer cr;               //Reference to the ColliderResizer.cs for resizing collider on spawn
+    private AudioSource audioSource;
 
     public bool canMove = false;             //Prevent player from moving while the countdown is happening
 
@@ -43,6 +49,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         cr = GetComponent<ColliderResizer>();
+        audioSource = GetComponent<AudioSource>();
+        
         //Find the Player action map in the Input Actions asset
         var playerMap = inputActions.FindActionMap("Player");
 
@@ -114,6 +122,9 @@ public class PlayerController : MonoBehaviour
         // --- Handle acceleration/braking/reverse ---
         if (accelerating)
         {
+            
+            audioSource.clip = accel;
+            audioSource.Play();
             //If accelerating, increase speed by acceleration * deltaTime
             targetSpeed += acceleration * Time.fixedDeltaTime;
 
@@ -122,6 +133,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (braking)
         {
+            audioSource.clip = decel;
+            audioSource.Play();
             //If braking, reduce speed by brakeDeceleration * deltaTime
             targetSpeed -= brakeDeceleration * Time.fixedDeltaTime;
 
@@ -133,6 +146,8 @@ public class PlayerController : MonoBehaviour
             //Natural deceleration: slow down gradually if neither accelerating nor braking
             if (currentSpeed > 0f)
             {
+                audioSource.clip = idle;
+                audioSource.Play();
                 //Moving forward: subtract deceleration to slow down
                 targetSpeed -= deceleration * Time.fixedDeltaTime;
 
@@ -141,6 +156,8 @@ public class PlayerController : MonoBehaviour
             }
             else if (currentSpeed < 0f)
             {
+                audioSource.clip = accel;
+                audioSource.Play();
                 //Moving backward: add deceleration (pushes towards 0)
                 targetSpeed += deceleration * Time.fixedDeltaTime;
 
