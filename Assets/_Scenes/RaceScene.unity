@@ -9229,7 +9229,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2056812819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9237,33 +9237,22 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2056812818}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5c9793dce0b03a409bd335cf9292060, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   totalLaps: 3
   checkpoints:
-  - {fileID: 0}
   - {fileID: 869236515}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 1851921508}
   - {fileID: 2127594870}
   - {fileID: 541983138}
   - {fileID: 614839700}
-  - {fileID: 0}
   - {fileID: 2072291486}
   - {fileID: 5281786}
   - {fileID: 423630653}
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 1746809576}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 75314608}
   finishLine: {fileID: 1858732203}
   player: {fileID: 0}
