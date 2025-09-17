@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Controls.unity
     guid: adb096e20e780e448a323b908f411cbb
+  - enabled: 1
+    path: Assets/_Scenes/RaceFinished.unity
+    guid: 5d99c7f49b19a394ca8dcaa2a75d7680
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
