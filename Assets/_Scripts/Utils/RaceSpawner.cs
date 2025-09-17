@@ -12,6 +12,11 @@ public class RaceSpawner : MonoBehaviour
     //List to keep track of which spawn points are still available
     private List<int> availableSpawnIndices = new List<int>();
 
+    private void Awake()
+    {
+        GameObject music = GameObject.Find("BGM");
+        Destroy(music);
+    }
     private void Start()
     {
         //Ensure that we have exactly 9 spawn points (or more)
