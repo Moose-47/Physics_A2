@@ -97,6 +97,7 @@ public class PlayerController : MonoBehaviour
             playingAudio = false;
             audioSource.Stop();
             audioSource.clip = idle;
+            audioSource.Play();
         };
     }
 
@@ -121,6 +122,7 @@ public class PlayerController : MonoBehaviour
             playingAudio = false; 
             audioSource.Stop();
             audioSource.clip = idle;
+            audioSource.Play();
         };
 
         //Disable all actions
@@ -158,11 +160,15 @@ public class PlayerController : MonoBehaviour
         }
         else if (braking)
         {
-            if (!playingAudio)
+            if (!playingAudio && currentSpeed > 0f)
             {
                 playingAudio = true;
                 audioSource.clip = decel;
                 audioSource.Play();
+            }
+            if (currentSpeed < 0f)
+            {
+                audioSource.clip = accel;
             }
             //If braking, reduce speed by brakeDeceleration * deltaTime
             targetSpeed -= brakeDeceleration * Time.fixedDeltaTime;
@@ -188,11 +194,6 @@ public class PlayerController : MonoBehaviour
             }
             else if (currentSpeed < 0f)
             {
-                if (audioSource.clip != idle)
-                {
-                    audioSource.clip = accel;
-                    audioSource.Play();
-                }
                 //Moving backward: add deceleration (pushes towards 0)
                 targetSpeed += deceleration * Time.fixedDeltaTime;
 
