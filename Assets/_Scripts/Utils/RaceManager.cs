@@ -187,6 +187,5 @@ public class RaceManager : MonoBehaviour
 
         // Load the race finished scene
         SceneManager.LoadScene("RaceFinished");
-
     }
 }

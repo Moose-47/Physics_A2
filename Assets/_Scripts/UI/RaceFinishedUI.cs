@@ -31,7 +31,10 @@ public class RaceFinishedUI : MonoBehaviour
             }
         }
         returnToMain.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
-            
-    
+    }
+
+    private void OnDisable()
+    {
+        returnToMain.onClick.RemoveAllListeners();
     }
 }
