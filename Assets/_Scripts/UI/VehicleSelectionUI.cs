@@ -39,12 +39,21 @@ public class VehicleSelectionUI : MonoBehaviour
 
     private void OnDisable()
     {
-        // Remove all listeners to prevent memory leaks
-        for (int i = 0; i < vehicleOptions.Length; i++)
-            vehicleOptions[i].onClick.RemoveAllListeners();
+        // Remove listeners safely using null checks
+        if (vehicleOptions != null)
+        {
+            for (int i = 0; i < vehicleOptions.Length; i++)
+            {
+                if (vehicleOptions[i] != null)
+                    vehicleOptions[i].onClick.RemoveAllListeners();
+            }
+        }
 
-        confirmVehicleButton.onClick.RemoveAllListeners();
-        mainMenuButton.onClick.RemoveAllListeners();
+        if (confirmVehicleButton != null)
+            confirmVehicleButton.onClick.RemoveAllListeners();
+
+        if (mainMenuButton != null)
+            mainMenuButton.onClick.RemoveAllListeners();
     }
 
     private void OnVehicleSelected(int index)
