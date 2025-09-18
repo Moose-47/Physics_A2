@@ -103,7 +103,7 @@ public class AiCarController : MonoBehaviour
         // --- SPEED CONTROL ---
         float currentSpeed = Vector2.Dot(rb.linearVelocity, transform.up); //How fast car is moving forward
         float accel = (currentSpeed < targetSpeed) ? acceleration : deceleration; //Decide whether to speed up or slow down
-        float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, accel * Time.fixedDeltaTime); // mooth change
+        float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, accel * Time.fixedDeltaTime); // Smooth change
         rb.linearVelocity = transform.up * newSpeed; //Apply forward speed
 
         // --- TURNING ---
