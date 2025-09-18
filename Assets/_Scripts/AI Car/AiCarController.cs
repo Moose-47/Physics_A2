@@ -70,35 +70,35 @@ public class AiCarController : MonoBehaviour
     {
         if (!canMove || waypoints == null || waypoints.Length < 2) return;
 
-        // --- Step 1: Calculate dynamic lookahead point ---
+        //Calculate dynamic lookahead point 
         float dynamicLookahead = Mathf.Max(baseLookaheadDistance, CurrentForwardSpeed * 0.5f);
         currentTargetPoint = GetLookaheadPoint(dynamicLookahead);
 
-        // --- Step 2: Calculate angle to target ---
+        //Calculate angle to target 
         Vector2 toTarget = (currentTargetPoint - (Vector2)transform.position).normalized;
         float angleToTarget = Vector2.SignedAngle(transform.up, toTarget);
 
-        // --- Step 3: Calculate maximum speed to safely turn ---
+        //Calculate maximum speed to safely turn
         float maxTurnSpeed = baseMaxSpeed * (maxTurnAngle / Mathf.Max(Mathf.Abs(angleToTarget), 1f));
         targetSpeed = Mathf.Min(baseMaxSpeed, maxTurnSpeed);
 
-        // --- Step 4: Apply speed smoothly ---
+        //Apply speed smoothly
         float currentSpeed = Vector2.Dot(rb.linearVelocity, transform.up);
         float accel = (currentSpeed < targetSpeed) ? acceleration : deceleration;
         float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, accel * Time.fixedDeltaTime);
         rb.linearVelocity = transform.up * newSpeed;
 
-        // --- Step 5: Apply player-style turning ---
+        //Apply player-style turning
         float steerInput = Mathf.Clamp(angleToTarget / maxTurnAngle, -1f, 1f);
         float speedFactor = Mathf.Clamp01(Mathf.Abs(currentSpeed) / baseMaxSpeed);
         float rotationAmount = steerInput * maxTurnAngle * (1f - speedDependentTurnFactor * speedFactor) * Time.fixedDeltaTime * turnSpeed / 90f;
         rb.MoveRotation(rb.rotation + rotationAmount);
 
-        // --- Off-track slowdown ---
+        //Off-track slowdown
         if (IsOffTrack())
             rb.linearVelocity *= offTrackSlowFactor;
 
-        // --- Waypoint progression ---
+        //Waypoint progression
         if (Vector2.Distance(transform.position, targetQueue.Peek()) < waypointThreshold)
         {
             AdvanceToNextTarget();
